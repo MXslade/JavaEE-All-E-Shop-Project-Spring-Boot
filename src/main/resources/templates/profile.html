@@ -1,0 +1,60 @@
+<!DOCTYPE html >
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/main.html">
+
+<div layout:fragment="site_content">
+    <div class="row">
+        <div class="col-3">
+            <div th:insert="~{include/side_bar}"></div>
+        </div>
+        <div class="col-9">
+            <div class="row mb-4">
+                <div class="col-8 offset-2">
+                    <img th:src="@{'/profile_picture/' + ${current_user.getProfilePicture()}}" alt="" class="w-100">
+                </div>
+            </div>
+            <form th:action="@{'/update_profile_picture'}" method="post" enctype="multipart/form-data" class="mb-4">
+                <div class="custom-file mb-4">
+                    <input type="file" class="custom-file-input" id="customFile" name="profile_picture">
+                    <label class="custom-file-label" for="customFile">Choose file</label>
+                </div>
+                <input type="submit" value="UPDATE PROFILE PICTURE" class="btn btn-success">
+            </form>
+            <form th:action="@{'/user_edit'}" method="post" class="mb-4">
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" name="user_email" class="form-control" th:value="${current_user.getEmail()}" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Full Name:</label>
+                    <input type="text" name="user_full_name" class="form-control" th:value="${current_user.getFullName()}" required>
+                </div>
+                <input type="hidden" name="user_id" th:value="${current_user.getId()}">
+                <div class="d-flex justify-content-end">
+                    <input type="submit" class="btn btn-success" value="UPDATE PROFILE">
+                </div>
+            </form>
+
+            <form th:action="@{'/update_user_password'}" method="post" class="mb-4">
+                <div class="form-group">
+                    <label>Old Password:</label>
+                    <input type="password" name="user_old_password" class="form-control" required placeholder="Old Password">
+                </div>
+                <div class="form-group">
+                    <label>New Password:</label>
+                    <input type="password" name="user_new_password" class="form-control" required placeholder="New Password">
+                </div>
+                <div class="form-group">
+                    <label>Retype New Password:</label>
+                    <input type="password" name="user_re_new_password" class="form-control" required placeholder="Retype New Password">
+                </div>
+                <input type="hidden" name="user_id" th:value="${current_user.getId()}">
+                <div class="d-flex justify-content-end">
+                    <input type="submit" class="btn btn-success" value="SAVE">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</html>

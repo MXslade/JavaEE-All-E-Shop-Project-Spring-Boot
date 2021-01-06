@@ -1,0 +1,11 @@
+<form class="row mb-4" id="main_search_form" th:action="@{'/search'}" method="get">
+    <div class="col-9">
+        <input type="text" class="form-control" th:placeholder="#{input.search_placeholder}" name="name">
+    </div>
+    <input type="hidden" name="price_from" value="">
+    <input type="hidden" name="price_to" value="">
+    <input type="hidden" name="brand_name" value="">
+    <div class="col-3">
+        <input type="submit" class="btn btn-success w-100" th:value="#{button.search}">
+    </div>
+</form>

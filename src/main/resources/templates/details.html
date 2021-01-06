@@ -1,0 +1,139 @@
+<!DOCTYPE html >
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/main.html"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<div layout:fragment="site_content">
+    <div class="row">
+        <div class="col-3">
+            <div th:insert="~{include/side_bar}"></div>
+        </div>
+        <div class="col-9">
+            <div th:insert="~{include/main_search_bar}"></div>
+            <div class="card mb-4 w-100">
+                <div style="height: 24rem; width: 100%">
+                    <div id="carouselExampleIndicators" class="carousel slide h-100" data-ride="carousel">
+                        <ol class="carousel-indicators">
+<!--                            <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>-->
+<!--                            <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>-->
+<!--                            <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>-->
+                            <li th:if="${pictures.size() > 0}" data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+                            <li th:each="picture : ${pictures}" th:if="${pictureStat.index != 0}" data-target="#carouselExampleIndicators" th:data-slide-to="${pictureStat.index}"></li>
+                            <li th:if="${pictures.size() == 0}" data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+                        </ol>
+                        <div class="carousel-inner">
+<!--                            <div class="carousel-item active">-->
+<!--                                <img src="..." class="d-block w-100" alt="...">-->
+<!--                            </div>-->
+<!--                            <div class="carousel-item">-->
+<!--                                <img src="..." class="d-block w-100" alt="...">-->
+<!--                            </div>-->
+<!--                            <div class="carousel-item">-->
+<!--                                <img src="..." class="d-block w-100" alt="...">-->
+<!--                            </div>-->
+                            <div th:if="${pictures.size() > 0}" class="carousel-item active">
+                                <img th:src="@{'/shop_item_picture/' + ${pictures.get(0).getUrl()}}" style="max-height: 100%; display: block; max-width: 100%; " alt="KEK">
+                            </div>
+                            <div th:each="picture : ${pictures}" th:if="${pictureStat.index != 0}" class="carousel-item">
+                                <img th:src="@{'/shop_item_picture/' + ${picture.getUrl()}}" style="max-height: 100%; display: block; max-width: 100%; " alt="KEK">
+                            </div>
+                            <div th:if="${pictures.size() == 0}" class="carousel-item active">
+                                <img th:src="@{'/shop_item_picture/kek'}" style="max-height: 100%; display: block; max-width: 100%; " alt="KEK">
+                            </div>
+                        </div>
+                        <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body" style="height: 12rem; margin-top: 4rem;">
+                    <h5 class="card-title text-primary" th:text="${shop_item.getName()}">Card title</h5>
+                    <h5 class="card-title" th:text="${'$' + shop_item.getPrice()}"></h5>
+                    <p class="card-text" th:text="${shop_item.getDescription()}">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    <p class="font-weight-bold">BRAND: <a th:href="@{'/search?name=&price_from=&price_to=&brand_name=' + ${shop_item.getBrand().getName()}}" class="text-primary" th:text="${shop_item.getBrand().getName() + ', ' + shop_item.getBrand().getCountry().getName()}"></a></p>
+                </div>
+                <div class="card-footer">
+                    <i class="fas fa-star text-center" th:each="i : ${#numbers.sequence(1, shop_item.getFullStars())}" th:if="${shop_item.getFullStars() > 0}" style="width: 2rem"></i>
+                    <i class="fas fa-star-half text-center" th:each="i : ${#numbers.sequence(1, shop_item.getHalfStars())}" th:if="${shop_item.getHalfStars() > 0}" style="width: 2rem"></i>
+                    <i class="far fa-star text-center" th:each="i : ${#numbers.sequence(1, shop_item.getEmptyStars())}" th:if="${shop_item.getEmptyStars() > 0}" style="width: 2rem"></i>
+                </div>
+            </div>
+            <form th:action="@{'/add_to_basket'}" method="post" class="mb-4">
+                <input type="hidden" name="shop_item_id" th:value="${shop_item.getId()}">
+                <input type="hidden" name="page" value="details">
+                <input type="submit" class="btn btn-success" value="Add To Basket">
+            </form>
+            <h4>Comments</h4>
+            <div th:each="comment : ${comments}" class="row">
+                <div class="col-1">
+                    <img th:src="@{'/profile_picture/' + ${comment.getUser().getProfilePicture()}}" alt="" class="w-100">
+                </div>
+                <div class="col-10">
+                    <h5 th:text="${comment.getUser().getFullName()}"></h5>
+                    <p th:text="${comment.getText()}"></p>
+                </div>
+                <div class="col-1" sec:authorize="isAuthenticated()">
+                    <th:block th:if="${current_user.getId().equals(comment.getUser().getId())}">
+                        <a class="w-25" data-toggle="modal" th:data-target="${'#editCommentModal' + comment.getId()}"><i class="far fa-edit w-100" style="font-size: small"></i></a>
+                        <a th:href="@{'/delete_comment/' + ${comment.getId()}}" class="w-25"><i class="fas fa-trash w-100" style="font-size: small"></i></a>
+                    </th:block>
+                    <th:block th:unless="${current_user.getId().equals(comment.getUser().getId())}">
+                        <a sec:authorize="hasAnyRole('ROLE_ADMIN, ROLE_MODERATOR')" th:href="@{'/delete_comment/' + ${comment.getId()}}" class="w-25"><i class="fas fa-trash w-100" style="font-size: small"></i></a>
+                    </th:block>
+                </div>
+            </div>
+            <h4 sec:authorize="isAuthenticated()">Leave a comment</h4>
+            <div class="row mb-4" sec:authorize="isAuthenticated()">
+                <div class="col-1">
+                    <img th:src="@{'/profile_picture/' + ${current_user.getProfilePicture()}}" alt="" class="w-100">
+                </div>
+                <form th:action="@{'/add_comment_to_item'}" method="post" class="col-11">
+                    <input type="hidden" name="shop_item_id" th:value="${shop_item.getId()}">
+                    <div class="row">
+                        <div class="col-10">
+                            <input type="text" class="form-control" name="comment_text" placeholder="Leave a comment...">
+                        </div>
+                        <div class="col-2">
+                            <button type="submit" class="btn btn-success w-100"><i class="far fa-comment"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <th:block sec:authorize="isAuthenticated()" th:each="comment : ${comments}" th:if="${comment.getUser().getId().equals(current_user.getId())}">
+        <div class="modal fade" th:id="${'editCommentModal' + comment.getId()}" tabindex="-1" th:aria-labelledby="${'editModalLabel' + comment.getId()}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" th:id="${'editModalLabel' + comment.getId()}">Edit Comment</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form th:action="@{'/edit_comment'}" th:id="${'editCommentForm' + comment.getId()}" method="post">
+                            <div class="form-group">
+                                <label class="col-form-label">Comment:</label>
+                                <input type="text" class="form-control" name="comment_text" th:value="${comment.getText()}">
+                            </div>
+                            <input type="hidden" name="comment_id" th:value="${comment.getId()}">
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" th:form="${'editCommentForm' + comment.getId()}" class="btn btn-success">Edit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</div>
+</html>

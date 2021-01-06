@@ -1,0 +1,81 @@
+<!DOCTYPE html >
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/main.html">
+
+<div layout:fragment="site_content">
+    <div class="row">
+        <div class="col-3">
+            <div th:insert="~{include/side_bar}"></div>
+        </div>
+        <div class="col-9">
+            <form th:action="@{'/search'}" method="get">
+                <div id="detailed_search_form" class="row mb-4">
+                    <div class="col-3">
+                        <label class="col-form-label">Name:</label>
+                        <input type="text" class="form-control" name="name" th:value="${search_params.getName()}">
+                    </div>
+                    <div class="col-2">
+                        <label class="col-form-label">Brand:</label>
+                        <select name="brand_name" class="form-control">
+                            <option value=""></option>
+                            <option th:each="brand : ${brands}" th:text="${brand.getName()}" th:value="${brand.getName()}" th:selected="${search_params.getBrandName().equals(brand.getName())}"></option>
+                        </select>
+                    </div>
+                    <div class="col-2">
+                        <label class="col-form-label">Price From:</label>
+                        <input type="text" class="form-control" name="price_from" th:value="${search_params.getPriceFrom()}">
+                    </div>
+                    <div class="col-2">
+                        <label class="col-form-label">Price To:</label>
+                        <input type="text" class="form-control" name="price_to" th:value="${search_params.getPriceTo()}">
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label text-white">Text</label>
+                        <input type="submit" class="btn btn-success w-100" value="SEARCH">
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-5">
+                        <h4>Search Results:</h4>
+                    </div>
+                    <div class="col-2"></div>
+                    <div class="col-2 justify-self-end">
+                        Order by price:
+                    </div>
+                    <div class="col-3 justify-self-end">
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-secondary" style="font-size: small">
+                                <input type="radio" name="order" value="Asc" id="option1"> Ascending
+                            </label>
+                            <label class="btn btn-secondary" style="font-size: small">
+                                <input type="radio" name="order" value="Desc" id="option2"> Descending
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="d-flex flex-wrap">
+                <th:block th:each="shop_item : ${shop_items}">
+                    <div class="card mb-4 mr-3" style="width: 16rem;">
+                        <div class="bg-secondary" style="height: 9rem; width: 100%">
+                            <img class="card-img-top" th:src="@{'/shop_item_main_picture/' + ${shop_item.getId()}}" alt="Card image cap" style="max-height: 100%; max-width: 100%">
+                        </div>
+                        <div class="card-body" style="height: 12rem">
+                            <a th:href="@{'/details/' + ${shop_item.getId()}}"><h5 class="card-title text-primary" th:text="${shop_item.getName()}">Card title</h5></a>
+                            <h5 class="card-title" th:text="${'$' + shop_item.getPrice()}"></h5>
+                            <p class="card-text text-truncate" th:text="${shop_item.getDescription()}">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                            <p class="font-weight-bold">BRAND: <a th:href="@{'/search?name=&price_from=&price_to=&brand_name=' + ${shop_item.getBrand().getName()}}" class="text-primary" th:text="${shop_item.getBrand().getName() + ', ' + shop_item.getBrand().getCountry().getName()}"></a></p>
+                        </div>
+                        <div class="card-footer">
+                            <i class="fas fa-star text-center" th:each="i : ${#numbers.sequence(1, shop_item.getFullStars())}" th:if="${shop_item.getFullStars() > 0}" style="width: 2rem"></i>
+                            <i class="fas fa-star-half text-center" th:each="i : ${#numbers.sequence(1, shop_item.getHalfStars())}" th:if="${shop_item.getHalfStars() > 0}" style="width: 2rem"></i>
+                            <i class="far fa-star text-center" th:each="i : ${#numbers.sequence(1, shop_item.getEmptyStars())}" th:if="${shop_item.getEmptyStars() > 0}" style="width: 2rem"></i>
+                        </div>
+                    </div>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

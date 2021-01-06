@@ -1,0 +1,105 @@
+<!DOCTYPE html >
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorator="layout/main.html">
+
+<div layout:fragment="site_content">
+    <div class="row">
+        <div class="col-3">
+            <div th:insert="~{include/side_bar}"></div>
+        </div>
+        <div class="col-9">
+            <div th:insert="~{include/main_search_bar}"></div>
+            <ul class="list-group">
+                <li class="list-group-item bg-light">
+                    <h2>Basket</h2>
+                </li>
+                <li class="list-group-item">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr class="border">
+                            <th scope="col">Item</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col" style="width: 15%"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="item : ${basket}">
+                            <th scope="row" th:text="${item.getShopItem().getName()}"></th>
+                            <td th:text="${'$' + item.getShopItem().getPrice()}"></td>
+                            <td th:text="${item.getAmount()}">Otto</td>
+                            <td class="d-flex">
+                                <form th:action="@{'/add_to_basket'}" method="post">
+                                    <input type="hidden" name="shop_item_id" th:value="${item.getShopItem().getId()}">
+                                    <input type="hidden" name="page" value="basket">
+                                    <input type="submit" class="btn btn-success" value="+">
+                                </form>
+                                <form th:action="@{'/delete_from_basket'}" method="post">
+                                    <input type="hidden" name="shop_item_id" th:value="${item.getShopItem().getId()}">
+                                    <input type="submit" class="btn btn-danger" value="-">
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="row justify-content-between">
+                        <div class="col">
+                            TOTAL: <span class="font-weight-bold" th:text="${'$' + price_sum_of_basket}"></span>
+                        </div>
+                        <div class="col">
+                            <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#checkInModal">CHECK IN</button>
+                            <a th:href="@{'/clear_basket'}" class="btn btn-danger"><i class="fas fa-dumpster"></i> CLEAR BASKET</a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="modal fade" id="checkInModal" tabindex="-1" aria-labelledby="checkInModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="checkInModalLabel">
+                        <i class="fab fa-cc-apple-pay" style="font-size: 3rem"></i>
+                        <i class="fab fa-cc-visa" style="font-size: 3rem"></i>
+                        <i class="fab fa-cc-paypal" style="font-size: 3rem"></i>
+                        <i class="fab fa-cc-amazon-pay" style="font-size: 3rem"></i>
+                        <i class="fab fa-cc-mastercard" style="font-size: 3rem"></i>
+                        <i class="fab fa-cc-amex" style="font-size: 3rem"></i>
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="checkInForm" th:action="@{'/check_in'}" method="post">
+                        <div class="form-group">
+                            <label class="col-form-label">Full Name:</label>
+                            <input type="text" name="full_name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-form-label">Card Number:</label>
+                            <input type="text" name="card_number" class="form-control" required>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label class="col-form-label">Expiration (MM/YY):</label>
+                                <input type="text" name="expiration" class="form-control">
+                            </div>
+                            <div class="col">
+                                <label class="col-form-label">CVV:</label>
+                                <input type="text" name="cvv" class="form-control">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" form="checkInForm" class="btn btn-success">Pay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

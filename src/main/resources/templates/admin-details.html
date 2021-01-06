@@ -1,0 +1,200 @@
+<!DOCTYPE html >
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>ALL E-SHOP</title>
+    <link rel="stylesheet" th:href="@{'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css'}" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" th:href="@{'https://use.fontawesome.com/releases/v5.15.1/css/all.css'}" integrity="sha384-vp86vTRFVJgpjF9jiIGPEEqYqlDwgyBgEF109VFjmqGmIY/Y4HV4d3Gp2irVfcrp" crossorigin="anonymous">
+</head>
+<body>
+
+<div class="bg-primary mb-4">
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand font-weight-bold" th:href="@{'/admin'}"><i class="fab fa-atlassian"></i> ALL E-SHOP</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" th:href="@{'/admin'}">Home <span class="sr-only">(current)</span></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-6 offset-3">
+            <h2 th:text="${shop_item.getName()}"></h2>
+            <form th:action="@{'/admin/edit'}" method="post" class="mb-4">
+                <div class="form-group">
+                    <label>Name:</label>
+                    <input type="text" name="name" class="form-control" th:value="${shop_item.getName()}">
+                </div>
+                <div class="form-group">
+                    <label>Price:</label>
+                    <input type="number" name="price" class="form-control" th:value="${shop_item.getPrice()}">
+                </div>
+                <div class="form-group">
+                    <label>Amount:</label>
+                    <input type="number" name="amount" class="form-control" th:value="${shop_item.getAmount()}">
+                </div>
+                <div class="form-group">
+                    <label>Description:</label>
+                    <textarea name="description" class="form-control" th:text="${shop_item.getDescription()}"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Rating:</label>
+                    <input type="number" name="stars" class="form-control" th:value="${shop_item.getStars()}">
+                </div>
+                <div class="form-group">
+                    <label>Brand:</label>
+                    <select name="brand_id" class="form-control">
+                        <option th:each="brand : ${brands}" th:text="${brand.getName() + ', ' + brand.getCountry().getName()}" th:value="${brand.getId()}" th:selected="${shop_item.getBrand().getId().equals(brand.getId())}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Small Picture Url:</label>
+                    <input type="text" name="small_picture_url" class="form-control" th:value="${shop_item.getSmallPictureUrl()}">
+                </div>
+                <div class="form-group">
+                    <label>Large Picture Url:</label>
+                    <input type="text" name="large_picture_url" class="form-control" th:value="${shop_item.getLargePictureUrl()}">
+                </div>
+                <div class="form-group">
+                    <label class="col-form-label">Added Date:</label>
+                    <input type="date" class="form-control" name="added_date" th:value="${shop_item.getAddedDate()}" required>
+                </div>
+                <div class="form-group form-check">
+                    <input th:if="${shop_item.isInTopPage()}" type="checkbox" class="form-check-input" name="is_top" checked>
+                    <input th:if="${!shop_item.isInTopPage()}" type="checkbox" class="form-check-input" name="is_top">
+                    <label class="form-check-label">Check to show on the top</label>
+                </div>
+                <input type="hidden" name="id" th:value="${shop_item.getId()}">
+                <div class="d-flex justify-content-end">
+                    <input type="submit" class="btn btn-success mr-4" value="SAVE">
+                    <a th:href="@{'/admin/delete/' + ${shop_item.getId()}}" class="btn btn-danger">Delete</a>
+                </div>
+            </form>
+            <h1>Categories</h1>
+            <table class="table">
+                <tbody>
+                <tr th:each="category : ${shop_item.getCategories()}">
+                    <th scope="row" th:text="${category.getName()}"></th>
+                    <td style="width: 10%">
+                        <form th:action="@{'/admin/remove_category_from_item'}" method="post">
+                            <input type="hidden" name="shop_item_id" th:value="${shop_item.getId()}">
+                            <input type="hidden" name="category_id" th:value="${category.getId()}">
+                            <input type="submit" class="btn btn-danger font-weight-bold w-100" value="-">
+                        </form>
+                    </td>
+                </tr>
+                <tr th:each="category: ${categories}">
+                    <th scope="row" th:text="${category.getName()}"></th>
+                    <td style="width: 10%">
+                        <form th:action="@{'/admin/assign_category_to_item'}" method="post">
+                            <input type="hidden" name="shop_item_id" th:value="${shop_item.getId()}">
+                            <input type="hidden" name="category_id" th:value="${category.getId()}">
+                            <input type="submit" class="btn btn-success font-weight-bold w-100" value="+">
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+<!--            <h1>Pictures</h1>-->
+<!--            <table class="table">-->
+<!--                <thead>-->
+<!--                <tr>-->
+<!--                    <th scope="col" style="width: ">Picture</th>-->
+<!--                    <th scope="col">URL</th>-->
+<!--                    <th scope="col">Added Date</th>-->
+<!--                    <th scope="col" style="width: 10%"></th>-->
+<!--                </tr>-->
+<!--                </thead>-->
+<!--                <tr th:each="picture : ${pictures}">-->
+<!--                    <th scope="row"><img th:src="@{'/shop_item_picture/' + ${picture.getUrl()}}" alt="" style="height: 3rem;"></th>-->
+<!--                    <td th:text="${picture.getUrl()}"></td>-->
+<!--                    <td th:text="${picture.getAddedDate()}"></td>-->
+<!--                    <td>-->
+<!--                        <form th:action="@{'/admin/remove_picture'}" method="post">-->
+<!--                            <input type="hidden" name="picture_id" th:value="${picture.getId()}">-->
+<!--                            <input type="submit" class="btn btn-danger font-weight-bold w-100" value="-">-->
+<!--                        </form>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <th scope="row"></th><td></td><td></td>-->
+<!--                    <td><button type="button" class="btn btn-success font-weight-bold w-100" data-toggle="modal" data-target="#addPictureModal">+</button></td>-->
+<!--                </tr>-->
+<!--            </table>-->
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h1>Pictures</h1>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col" style="width: 20%">Picture</th>
+                    <th scope="col">URL</th>
+                    <th scope="col">Added Date</th>
+                    <th scope="col" style="width: 5%"></th>
+                </tr>
+                </thead>
+                <tr th:each="picture : ${pictures}">
+                    <th scope="row"><img th:src="@{'/shop_item_picture/' + ${picture.getUrl()}}" alt="" class="w-100"></th>
+                    <td th:text="${picture.getUrl()}"></td>
+                    <td th:text="${picture.getAddedDate()}"></td>
+                    <td>
+                        <form th:action="@{'/admin/remove_shop_item_picture'}" method="post">
+                            <input type="hidden" name="picture_id" th:value="${picture.getId()}">
+                            <input type="hidden" name="shop_item_id" th:value="${shop_item.getId()}">
+                            <input type="submit" class="btn btn-danger font-weight-bold w-100" value="-">
+                        </form>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"></th><td></td><td></td>
+                    <td><button type="button" class="btn btn-success font-weight-bold w-100" data-toggle="modal" data-target="#addPictureModal">+</button></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addPictureModal" tabindex="-1" aria-labelledby="addPictureModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addPictureModalLabel">Add Picture</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addShopItemPictureForm" th:action="@{'/admin/add_shop_item_picture'}" method="post" enctype="multipart/form-data" class="mb-4">
+                    <div class="custom-file mb-4">
+                        <input type="file" class="custom-file-input" id="customFile" name="shop_item_picture">
+                        <input type="hidden" name="shop_item_id" th:value="${shop_item.getId()}">
+                        <label class="custom-file-label" for="customFile">Choose file</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" form="addShopItemPictureForm">Add Picture</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{'https://code.jquery.com/jquery-3.2.1.slim.min.js'}" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script th:src="@{'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js'}" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script th:src="@{'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js'}" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script th:src="@{'/js/main.js'}"></script>
+</body>
+</html>

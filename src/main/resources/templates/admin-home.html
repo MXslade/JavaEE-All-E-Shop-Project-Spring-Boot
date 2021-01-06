@@ -1,0 +1,446 @@
+<!DOCTYPE html >
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+    <meta charset="UTF-8">
+    <title>ALL E-SHOP</title>
+    <link rel="stylesheet" th:href="@{'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css'}" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" th:href="@{'https://use.fontawesome.com/releases/v5.15.1/css/all.css'}" integrity="sha384-vp86vTRFVJgpjF9jiIGPEEqYqlDwgyBgEF109VFjmqGmIY/Y4HV4d3Gp2irVfcrp" crossorigin="anonymous">
+</head>
+<body>
+    <div class="bg-primary mb-4">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <a class="navbar-brand font-weight-bold" th:href="@{'/admin'}"><i class="fab fa-atlassian"></i> ALL E-SHOP</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
+                        <a class="nav-link" th:href="@{'/admin'}">Home <span class="sr-only">(current)</span></a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <div>
+        <div class="d-flex">
+            <div class="row w-100">
+                <div class="col-2">
+                    <ul class="list-group">
+                        <li class="list-group-item list-group-item-action" onclick="showAllItems()">All Items</li>
+                        <li class="list-group-item list-group-item-action" onclick="showAllBrands()" sec:authorize="hasAnyRole('ROLE_ADMIN')">All Brands</li>
+                        <li class="list-group-item list-group-item-action" onclick="showAllCountries()" sec:authorize="hasAnyRole('ROLE_ADMIN')">All Countries</li>
+                        <li class="list-group-item list-group-item-action" onclick="showAllCategories()" sec:authorize="hasAnyRole('ROLE_ADMIN')">All Categories</li>
+                        <li class="list-group-item list-group-item-action" onclick="showAllUsers()" sec:authorize="hasAnyRole('ROLE_ADMIN')">All Users</li>
+                        <li class="list-group-item list-group-item-action" onclick="showAllPayments()" sec:authorize="hasAnyRole('ROLE_ADMIN')">All Payments</li>
+                        <li class="list-group-item list-group-item-action" onclick="showAddItemForm()">Add Item</li>
+                        <li class="list-group-item list-group-item-action" onclick="showAddBrandForm()" sec:authorize="hasAnyRole('ROLE_ADMIN')">Add Brand</li>
+                        <li class="list-group-item list-group-item-action" onclick="showAddCountryForm()" sec:authorize="hasAnyRole('ROLE_ADMIN')">Add Country</li>
+                        <li class="list-group-item list-group-item-action" onclick="showAddCategoryForm()" sec:authorize="hasAnyRole('ROLE_ADMIN')">Add Category</li>
+                        <li class="list-group-item list-group-item-action" onclick="showAddUserForm()" sec:authorize="hasAnyRole('ROLE_ADMIN')">Add User</li>
+                    </ul>
+                </div>
+                <div class="col-10">
+                    <h1 class="display-4 mb-4">Managing Shop Items</h1>
+                    <table class="table table-striped" id="shop_items_table">
+                        <thead class="thead-light">
+                        <tr>
+                            <th scope="col" style="width: 5%">ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Brand</th>
+                            <th scope="col">Price</th>
+                            <th scope="col" style="width: 6%">Details</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="shop_item : ${shop_items}">
+                            <th scope="row" th:text="${shop_item.getId()}">1</th>
+                            <td th:text="${shop_item.getName()}">Mark</td>
+                            <td th:text="${shop_item.getBrand().getName() + ', ' + shop_item.getBrand().getCountry().getName()}"></td>
+                            <td th:text="${'$' + shop_item.getPrice()}"></td>
+                            <td>
+                                <a th:href="@{'/admin/details/' + ${shop_item.getId()}}" class="btn btn-dark w-100"><i class="fas fa-info-circle"></i></a>
+<!--                                <button class="btn btn-info" type="button" data-toggle="modal" th:data-target="${'#shopItemEditModal' + shop_item.getId()}">Edit</button>-->
+<!--                                <a th:href="@{'/admin/delete/' + ${shop_item.getId()}}" class="btn btn-danger">Delete</a>-->
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <table class="d-none" id="brands_table" sec:authorize="hasAnyRole('ROLE_ADMIN')">
+                        <thead class="thead-light">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Country</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="brand : ${brands}">
+                            <td scope="row" th:text="${brand.getId()}"></td>
+                            <td scope="row" th:text="${brand.getName()}"></td>
+                            <td scope="row" th:text="${brand.getCountry().getName()}"></td>
+                            <td>
+                                <button class="btn btn-info" type="button" data-toggle="modal" th:data-target="${'#brandEditModal' + brand.getId()}">Edit</button>
+                                <a th:href="@{'/admin/delete_brand/' + ${brand.getId()}}" class="btn btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <table class="d-none" id="countries_table" sec:authorize="hasAnyRole('ROLE_ADMIN')">
+                        <thead class="thead-light">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Code</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="country : ${countries}">
+                            <td scope="row" th:text="${country.getId()}"></td>
+                            <td scope="row" th:text="${country.getName()}"></td>
+                            <td scope="row" th:text="${country.getCode()}"></td>
+                            <td>
+                                <button class="btn btn-info" type="button" data-toggle="modal" th:data-target="${'#countryEditModal' + country.getId()}">Edit</button>
+                                <a th:href="@{'/admin/delete_country/' + ${country.getId()}}" class="btn btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <table class="d-none" id="categories_table" sec:authorize="hasAnyRole('ROLE_ADMIN')">
+                        <thead class="thead-light">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Logo Url</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="category : ${categories}">
+                            <td scope="row" th:text="${category.getId()}"></td>
+                            <td scope="row" th:text="${category.getName()}"></td>
+                            <td scope="row" th:text="${category.getLogoUrl()}"></td>
+                            <td>
+                                <button class="btn btn-info" type="button" data-toggle="modal" th:data-target="${'#categoryEditModal' + category.getId()}">Edit</button>
+                                <a th:href="@{'/admin/delete_category/' + ${category.getId()}}" class="btn btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <table class="d-none" id="users_table" sec:authorize="hasAnyRole('ROLE_ADMIN')">
+                        <thead class="thead-light">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Full Name</th>
+                            <th scope="col">Details</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="user : ${users}">
+                            <td scope="row" th:text="${user.getId()}"></td>
+                            <td scope="row" th:text="${user.getEmail()}"></td>
+                            <td scope="row" th:text="${user.getFullName()}"></td>
+                            <td>
+                                <a th:href="@{'/admin/user_details/' + ${user.getId()}}" class="btn btn-dark w-100"><i class="fas fa-info-circle"></i></a>
+<!--                                <button class="btn btn-info" type="button" data-toggle="modal" th:data-target="${'#categoryEditModal' + category.getId()}">Edit</button>-->
+<!--                                <a th:href="@{'/admin/delete_category/' + ${category.getId()}}" class="btn btn-danger">Delete</a>-->
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <table class="d-none" id="payments_table" sec:authorize="hasAnyRole('ROLE_ADMIN')">
+                        <thead>
+                        <tr>
+                            <th scope="col">Full Name:</th>
+                            <th scope="col">Item Name:</th>
+                            <th scope="col">Amount:</th>
+                            <th scope="col">Date</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="payment : ${payments}">
+                            <td scope="row" th:text="${payment.getCustomerFullName()}"></td>
+                            <td th:text="${payment.getShopItem().getName()}"></td>
+                            <td th:text="${payment.getAmount()}"></td>
+                            <td th:text="${payment.getDate()}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="d-none" id="shop_item_add_form">
+                        <form th:action="@{'/admin/add'}" method="post" class="col-9">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" name="name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea class="form-control" name="description" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Price</label>
+                                <input type="number" name="price" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Amount</label>
+                                <input type="number" name="amount" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Stars (Rating)</label>
+                                <input type="number" name="stars" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Small Picture Url</label>
+                                <input type="text" name="small_picture_url" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Large Picture Url</label>
+                                <input type="text" name="large_picture_url" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Brand</label>
+                                <select class="form-control" name="brand_id">
+                                    <option th:each="brand : ${brands}" th:text="${brand.getName()}" th:value="${brand.getId()}"></option>
+                                </select>
+                            </div>
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" name="is_top">
+                                <label class="form-check-label">Check to show on the top</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add</button>
+                        </form>
+                    </div>
+                    <div class="d-none" id="brand_add_form" sec:authorize="hasAnyRole('ROLE_ADMIN')">
+                        <form th:action="@{'/admin/add_brand'}" method="post" class="col-9">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" name="name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Country</label>
+                                <select class="form-control" name="country_id">
+                                    <option th:each="country : ${countries}" th:text="${country.getName() + ' ' + country.getCode()}" th:value="${country.getId()}"></option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add</button>
+                        </form>
+                    </div>
+                    <div class="d-none" id="country_add_form" sec:authorize="hasAnyRole('ROLE_ADMIN')">
+                        <form th:action="@{'/admin/add_country'}" method="post" class="col-9">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" name="name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Code</label>
+                                <input type="text" class="form-control" name="code" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add</button>
+                        </form>
+                    </div>
+                    <div class="d-none" id="category_add_form" sec:authorize="hasAnyRole('ROLE_ADMIN')">
+                        <form th:action="@{'/admin/add_category'}" method="post" class="col-9">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" name="name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Logo Url</label>
+                                <input type="text" class="form-control" name="logo_url" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add</button>
+                        </form>
+                    </div>
+                    <div class="d-none" id="user_add_form" sec:authorize="hasAnyRole('ROLE_ADMIN')">
+                        <form th:action="@{'/admin/add_user'}" method="post" class="col-9">
+                            <div class="form-group">
+                                <label>Email:</label>
+                                <input type="email" name="user_email" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Full Name:</label>
+                                <input type="text" name="user_full_name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="password" class="form-control" name="user_password" required value="12345678">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!--    <div th:each="shop_item : ${shop_items}" class="modal fade" th:id="${'shopItemEditModal' + shop_item.getId()}" tabindex="-1" th:aria-labelledby="${'exampleModalLabel' + shop_item.getId()}" aria-hidden="true">-->
+<!--        <div class="modal-dialog modal-lg">-->
+<!--            <div class="modal-content">-->
+<!--                <div class="modal-header">-->
+<!--                    <h5 class="modal-title" th:id="${'exampleModalLabel' + shop_item.getId()}">Edit Shop Item</h5>-->
+<!--                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+<!--                        <span aria-hidden="true">&times;</span>-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--                <div class="modal-body">-->
+<!--                    <form th:action="@{'/admin/edit'}" method="post" th:id="${'editShopItemFrom' + shop_item.getId()}">-->
+<!--                        <div class="form-group">-->
+<!--                            <label class="col-form-label">Name:</label>-->
+<!--                            <input type="text" class="form-control" name="name" required th:value="${shop_item.getName()}">-->
+<!--                        </div>-->
+<!--                        <div class="form-group">-->
+<!--                            <label class="col-form-label">Description:</label>-->
+<!--                            <textarea class="form-control" name="description" required th:text="${shop_item.getDescription()}"></textarea>-->
+<!--                        </div>-->
+<!--                        <div class="form-group">-->
+<!--                            <label class="col-form-label">Price:</label>-->
+<!--                            <input type="number" class="form-control" name="price" th:value="${shop_item.getPrice()}" required>-->
+<!--                        </div>-->
+<!--                        <div class="form-group">-->
+<!--                            <label class="col-form-label">Amount:</label>-->
+<!--                            <input type="number" class="form-control" name="amount" th:value="${shop_item.getAmount()}" required>-->
+<!--                        </div>-->
+<!--                        <div class="form-group">-->
+<!--                            <label class="col-form-label">Stars:</label>-->
+<!--                            <input type="number" class="form-control" name="stars" th:value="${shop_item.getStars()}" required>-->
+<!--                        </div>-->
+<!--                        <div class="form-group">-->
+<!--                            <label class="col-form-label">Small Picture Url:</label>-->
+<!--                            <input type="text" class="form-control" name="small_picture_url" th:value="${shop_item.getSmallPictureUrl()}" required>-->
+<!--                        </div>-->
+<!--                        <div class="form-group">-->
+<!--                            <label class="col-form-label">Large Picture Url:</label>-->
+<!--                            <input type="text" class="form-control" name="large_picture_url" th:value="${shop_item.getLargePictureUrl()}" required>-->
+<!--                        </div>-->
+<!--                        <div class="form-group">-->
+<!--                            <label class="col-form-label">Added Date:</label>-->
+<!--                            <input type="date" class="form-control" name="added_date" th:value="${shop_item.getAddedDate()}" required>-->
+<!--                        </div>-->
+<!--                        <input type="hidden" th:value="${shop_item.getId()}" name="id">-->
+<!--                        <div class="form-group">-->
+<!--                            <label class="col-form-label">Brand:</label>-->
+<!--                            <select class="form-control" name="brand_id">-->
+<!--                                <option th:each="brand : ${brands}" th:text="${brand.getName()}" th:value="${brand.getId()}" th:selected="${brand.getId().equals(shop_item.getBrand().getId())}"></option>-->
+<!--                            </select>-->
+<!--                        </div>-->
+<!--                        <div class="form-group form-check">-->
+<!--                            <input th:if="${shop_item.isInTopPage()}" type="checkbox" class="form-check-input" name="is_top" checked>-->
+<!--                            <input th:if="${!shop_item.isInTopPage()}" type="checkbox" class="form-check-input" name="is_top">-->
+<!--                            <label class="form-check-label">Check to show on the top</label>-->
+<!--                        </div>-->
+<!--                    </form>-->
+<!--                </div>-->
+<!--                <div class="modal-footer">-->
+<!--                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
+<!--                    <button type="submit" class="btn btn-primary" th:form="${'editShopItemFrom' + shop_item.getId()}">Save Changes</button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+
+    <div th:each="brand : ${brands}" class="modal fade" th:id="${'brandEditModal' + brand.getId()}" tabindex="-1" th:aria-labelledby="${'brandModalLabel' + brand.getId()}" aria-hidden="true"  sec:authorize="hasAnyRole('ROLE_ADMIN')">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" th:id="${'brandModalLabel' + brand.getId()}">Edit Brand</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form th:action="@{'/admin/edit_brand'}" method="post" th:id="${'editBrandFrom' + brand.getId()}">
+                        <div class="form-group">
+                            <label class="col-form-label">Name:</label>
+                            <input type="text" class="form-control" name="name" required th:value="${brand.getName()}">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">Country:</label>
+                            <select class="form-control" name="country_id">
+                                <option th:each="country : ${countries}" th:text="${country.getName()}" th:value="${country.getId()}" th:selected="${country.getId().equals(brand.getCountry().getId())}"></option>
+                            </select>
+                        </div>
+                        <input type="hidden" th:value="${brand.getId()}" name="id">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" th:form="${'editBrandFrom' + brand.getId()}">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:each="country : ${countries}" class="modal fade" th:id="${'countryEditModal' + country.getId()}" tabindex="-1" th:aria-labelledby="${'countryModalLabel' + country.getId()}" aria-hidden="true" sec:authorize="hasAnyRole('ROLE_ADMIN')">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" th:id="${'countryModalLabel' + country.getId()}">Edit Country</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form th:action="@{'/admin/edit_country'}" method="post" th:id="${'editCountryFrom' + country.getId()}">
+                        <div class="form-group">
+                            <label class="col-form-label">Name:</label>
+                            <input type="text" class="form-control" name="name" required th:value="${country.getName()}">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">Code:</label>
+                            <input type="text" class="form-control" name="code" required th:value="${country.getCode()}">
+                        </div>
+                        <input type="hidden" th:value="${country.getId()}" name="id">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" th:form="${'editCountryFrom' + country.getId()}">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:each="category : ${categories}" class="modal fade" th:id="${'categoryEditModal' + category.getId()}" tabindex="-1" th:aria-labelledby="${'categoryModalLabel' + category.getId()}" aria-hidden="true" sec:authorize="hasAnyRole('ROLE_ADMIN')">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" th:id="${'categoryModalLabel' + category.getId()}">Edit Category</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form th:action="@{'/admin/edit_category'}" method="post" th:id="${'editCategoryFrom' + category.getId()}">
+                        <div class="form-group">
+                            <label class="col-form-label">Name:</label>
+                            <input type="text" class="form-control" name="name" required th:value="${category.getName()}">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">Logo Url:</label>
+                            <input type="text" class="form-control" name="logo_url" required th:value="${category.getLogoUrl()}">
+                        </div>
+                        <input type="hidden" th:value="${category.getId()}" name="id">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" th:form="${'editCategoryFrom' + category.getId()}">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<script th:src="@{'https://code.jquery.com/jquery-3.2.1.slim.min.js'}" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script th:src="@{'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js'}" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script th:src="@{'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js'}" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script th:src="@{'/js/main.js'}"></script>
+</body>
+</html>
